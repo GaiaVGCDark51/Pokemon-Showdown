@@ -181,7 +181,6 @@ module.exports = (function () {
 					clearTimeout(self.requestTimeoutTimer);
 					self.requestTimeoutTimer = null;
 				}
-				//console.log('RESPONSE: ' + buffer);
 				var data = null;
 				try {
 					data = parseJSON(buffer);

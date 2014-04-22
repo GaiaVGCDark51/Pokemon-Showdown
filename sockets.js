@@ -27,7 +27,6 @@ if (cluster.isMaster) {
 		var id = worker.id;
 		workers[id] = worker;
 		worker.on('message', function (data) {
-			// console.log('master received: ' + data);
 			switch (data.charAt(0)) {
 			case '*': // *socketid, ip
 				// connect
@@ -224,7 +223,6 @@ if (cluster.isMaster) {
 	}
 
 	process.on('message', function (data) {
-		// console.log('worker received: ' + data);
 		var socket = null;
 		var socketid = null;
 		var channelid = null;
@@ -323,7 +321,6 @@ if (cluster.isMaster) {
 
 		process.send('*' + socketid + '\n' + socket.remoteAddress);
 
-		// console.log('CONNECT: ' + socket.remoteAddress + ' [' + socket.id + ']');
 		var interval;
 		if (Config.herokuhack) {
 			// see https://github.com/sockjs/sockjs-node/issues/57#issuecomment-5242187

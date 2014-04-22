@@ -460,7 +460,6 @@ var GlobalRoom = (function () {
 			return;
 		}
 
-		//console.log('BATTLE START BETWEEN: ' + p1.userid + ' ' + p2.userid);
 		var i = this.lastBattle + 1;
 		var formaturlid = format.toLowerCase().replace(/[^a-z0-9]+/g, '');
 		while(rooms['battle-' + formaturlid + i]) {
@@ -520,7 +519,6 @@ var BattleRoom = (function () {
 		this.users = {};
 		this.format = format;
 		this.auth = {};
-		//console.log("NEW BATTLE");
 
 		var formatid = toId(format);
 
@@ -583,8 +581,6 @@ var BattleRoom = (function () {
 			var p2 = rated.p2;
 			if (Users.getExact(rated.p2)) p2 = Users.getExact(rated.p2).name;
 
-			//update.updates.push('[DEBUG] uri: ' + Config.loginserver + 'action.php?act=ladderupdate&serverid=' + Config.serverid + '&p1=' + encodeURIComponent(p1) + '&p2=' + encodeURIComponent(p2) + '&score=' + p1score + '&format=' + toId(rated.format) + '&servertoken=[token]');
-
 			if (!rated.p1 || !rated.p2) {
 				this.push('|raw|ERROR: Ladder not updated: a player does not exist');
 			} else {
@@ -621,8 +617,6 @@ var BattleRoom = (function () {
 						try {
 							p1rating = data.p1rating;
 							p2rating = data.p2rating;
-
-							//self.add("Ladder updated.");
 
 							var oldacre = Math.round(data.p1rating.oldacre);
 							var acre = Math.round(data.p1rating.acre);
@@ -741,8 +735,7 @@ var BattleRoom = (function () {
 					fs.writeFile(curpath + '/' + self.id + '.log.json', JSON.stringify(logData));
 				});
 			});
-		}); // asychronicity
-		//console.log(JSON.stringify(logData));
+		});
 	};
 	BattleRoom.prototype.send = function (message, user) {
 		if (user) {
@@ -1533,7 +1526,6 @@ var newRoom = function (roomid, format, p1, p2, parent, rated) {
 	if (!p1 || !p2) return false;
 	if (!roomid) roomid = 'default';
 	if (!rooms[roomid]) {
-		// console.log("NEW BATTLE ROOM: " + roomid);
 		ResourceMonitor.countBattle(p1.latestIp, p1.name);
 		ResourceMonitor.countBattle(p2.latestIp, p2.name);
 		rooms[roomid] = new BattleRoom(roomid, format, p1, p2, parent, rated);

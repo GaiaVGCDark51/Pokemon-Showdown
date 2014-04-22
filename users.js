@@ -136,9 +136,8 @@ function socketConnect(worker, workerid, socketid, ip) {
 			// This is pretty crude, but it's the easiest way to deal
 			// with this case, which should be impossible anyway.
 			user.disconnectAll();
-		} else if (connection.user) {	// if user is still connected
+		} else if (connection.user) { // if user is still connected
 			connection.challenge = buffer.toString('hex');
-			// console.log('JOIN: ' + connection.user.name + ' [' + connection.challenge.substr(0, 15) + '] [' + socket.id + ']');
 			var keyid = Config.loginserverpublickeyid || 0;
 			connection.sendTo(null, '|challstr|' + keyid + '|' + connection.challenge);
 		}
@@ -510,7 +509,6 @@ var User = (function () {
 		}
 
 		for (var i = 0; i < this.connections.length; i++) {
-			//console.log('' + name + ' renaming: socket ' + i + ' of ' + this.connections.length);
 			var initdata = '|updateuser|' + this.name + '|' + (true ? '1' : '0') + '|' + this.avatar;
 			this.connections[i].send(initdata);
 		}
@@ -549,7 +547,6 @@ var User = (function () {
 		this.isSysop = false;
 
 		for (var i = 0; i < this.connections.length; i++) {
-			// console.log('' + name + ' renaming: connection ' + i + ' of ' + this.connections.length);
 			var initdata = '|updateuser|' + this.name + '|' + (false ? '1' : '0') + '|' + this.avatar;
 			this.connections[i].send(initdata);
 		}
@@ -703,8 +700,6 @@ var User = (function () {
 			body = '';
 			this.send('|nametaken|' + name + "|Your assertion is stale. This usually means that the clock on the server computer is incorrect. If this is your server, please set the clock to the correct time.");
 		} else if (body) {
-			//console.log('BODY: "' + body + '"');
-
 			if (users[userid] && !users[userid].authenticated && users[userid].connected) {
 				if (auth) {
 					if (users[userid] !== this) users[userid].resetName();
@@ -712,10 +707,6 @@ var User = (function () {
 					this.send('|nametaken|' + name + "|Someone is already using the name \"" + users[userid].name + "\".");
 					return this;
 				}
-			}
-
-			if (!this.named) {
-				// console.log('IDENTIFY: ' + name + ' [' + this.name + '] [' + challenge.substr(0, 15) + ']');
 			}
 
 			var group = Config.groupsranking[0];
@@ -764,7 +755,6 @@ var User = (function () {
 					}
 				}
 				for (var i = 0; i < this.connections.length; i++) {
-					//console.log('' + this.name + ' preparing to merge: connection ' + i + ' of ' + this.connections.length);
 					user.merge(this.connections[i]);
 				}
 				this.roomCount = {};
@@ -831,7 +821,6 @@ var User = (function () {
 	User.prototype.merge = function (connection) {
 		this.connected = true;
 		this.connections.push(connection);
-		//console.log('' + this.name + ' merging: connection ' + connection.socket.id);
 		var initdata = '|updateuser|' + this.name + '|' + (true ? '1' : '0') + '|' + this.avatar;
 		connection.send(initdata);
 		connection.user = this;
@@ -881,7 +870,6 @@ var User = (function () {
 	User.prototype.onDisconnect = function (connection) {
 		for (var i = 0; i < this.connections.length; i++) {
 			if (this.connections[i] === connection) {
-				// console.log('DISCONNECT: ' + this.userid);
 				if (this.connections.length <= 1) {
 					this.markInactive();
 					if (!this.authenticated) {
@@ -926,7 +914,6 @@ var User = (function () {
 		var connection = null;
 		this.markInactive();
 		for (var i = 0; i < this.connections.length; i++) {
-			// console.log('DESTROY: ' + this.userid);
 			connection = this.connections[i];
 			connection.user = null;
 			for (var j in connection.rooms) {
@@ -951,9 +938,6 @@ var User = (function () {
 	User.prototype.doWithMMR = function (formatid, callback) {
 		var self = this;
 		formatid = toId(formatid);
-
-		// this should relieve login server strain
-		// this.mmrCache[formatid] = 1000;
 
 		if (this.mmrCache[formatid]) {
 			callback(this.mmrCache[formatid]);
@@ -1180,7 +1164,7 @@ var User = (function () {
 			challengeTo: challengeTo
 		}));
 	};
-	User.prototype.makeChallenge = function (user, format/*, isPrivate*/) {
+	User.prototype.makeChallenge = function (user, format) {
 		user = getUser(user);
 		if (!user || this.challengeTo) {
 			return false;
@@ -1198,7 +1182,6 @@ var User = (function () {
 			from: this.userid,
 			to: user.userid,
 			format: '' + (format || ''),
-			//isPrivate: !!isPrivate, // currently unused
 			team: this.team
 		};
 		this.lastChallenge = time;
@@ -1247,16 +1230,12 @@ var User = (function () {
 		user.updateChallenges();
 		return true;
 	};
-	// chatQueue should be an array, but you know about mutables in prototypes...
-	// P.S. don't replace this with an array unless you know what mutables in prototypes do.
-	User.prototype.chatQueue = null;
-	User.prototype.chatQueueTimeout = null;
-	User.prototype.lastChatMessage = 0;
 	/**
 	 * The user says message in room.
 	 * Returns false if the rest of the user's messages should be discarded.
 	 */
 	User.prototype.chat = function (message, room, connection) {
+		if (!this.lastChatMessage) this.lastChatMessage = 0;
 		var now = new Date().getTime();
 
 		if (message.substr(0, 16) === '/cmd userdetails') {

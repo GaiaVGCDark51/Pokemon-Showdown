@@ -18,13 +18,6 @@ if (Config.crashguard) {
 	// graceful crash - allow current battles to finish before restarting
 	process.on('uncaughtException', function (err) {
 		require('./crashlogger.js')(err, 'A simulator process');
-		/* var stack = ("" + err.stack).split("\n").slice(0, 2).join("<br />");
-		if (Rooms.lobby) {
-			Rooms.lobby.addRaw('<div><b>THE SERVER HAS CRASHED:</b> ' + stack + '<br />Please restart the server.</div>');
-			Rooms.lobby.addRaw('<div>You will not be able to talk in the lobby or start new battles until the server restarts.</div>');
-		}
-		Config.modchat = 'crash';
-		Rooms.global.lockdown = true; */
 	});
 }
 
@@ -82,7 +75,6 @@ var Battles = {};
 // Receive and process a message sent using Simulator.prototype.send in
 // another process.
 process.on('message', function (message) {
-	//console.log('CHILD MESSAGE RECV: "' + message + '"');
 	var nlIndex = message.indexOf("\n");
 	var more = '';
 	if (nlIndex > 0) {
@@ -400,7 +392,6 @@ var BattlePokemon = (function () {
 	};
 	BattlePokemon.prototype.calculateStat = function (statName, boost, modifier) {
 		statName = toId(statName);
-		// var boost = this.boosts[statName];
 
 		if (statName === 'hp') return this.maxhp; // please just read .maxhp directly
 
@@ -408,7 +399,6 @@ var BattlePokemon = (function () {
 		var stat = this.stats[statName];
 
 		// stat boosts
-		// boost = this.boosts[statName];
 		var boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
 		if (boost > 6) boost = 6;
 		if (boost < -6) boost = -6;
@@ -714,16 +704,8 @@ var BattlePokemon = (function () {
 			evasion: 0
 		};
 
-		this.moveset = [];
-		this.moves = [];
-		// we're copying array contents
-		// DO NOT "optimize" it to copy just the pointer
-		// if you don't know what a pointer is, please don't
-		// touch this code
-		for (var i = 0; i < this.baseMoveset.length; i++) {
-			this.moveset.push(this.baseMoveset[i]);
-			this.moves.push(toId(this.baseMoveset[i].move));
-		}
+		this.moveset = this.baseMoveset.slice(0);
+		this.moves = this.baseMoveset.map(function (move) { return toId(move.move); });
 		this.transformed = false;
 		this.ability = this.baseAbility;
 		this.set.ivs = this.baseIvs;
@@ -767,7 +749,6 @@ var BattlePokemon = (function () {
 		this.hp = 0;
 		this.switchFlag = false;
 		this.status = 'fnt';
-		//this.fainted = true;
 		this.battle.faintQueue.push({
 			target: this,
 			source: source,
@@ -1218,7 +1199,6 @@ var BattleSide = (function () {
 
 		this.team = this.battle.getTeam(this, team);
 		for (var i = 0; i < this.team.length && i < 6; i++) {
-			//console.log("NEW POKEMON: " + (this.team[i] ? this.team[i].name : '[unidentified]'));
 			this.pokemon.push(new BattlePokemon(this.team[i], this));
 		}
 		this.pokemonLeft = this.pokemon.length;
@@ -1436,27 +1416,6 @@ var Battle = (function () {
 	Battle.prototype.toString = function () {
 		return 'Battle: ' + this.format;
 	};
-
-
-	// This function is designed to emulate the on-cartridge PRNG for Gens 3 and 4, as described in
-	// http://www.smogon.com/ingame/rng/pid_iv_creation#pokemon_random_number_generator
-	// This RNG uses a 32-bit initial seed
-
-	// This function has three different results, depending on arguments:
-	// - random() returns a real number in [0, 1), just like Math.random()
-	// - random(n) returns an integer in [0, n)
-	// - random(m, n) returns an integer in [m, n)
-
-	// m and n are converted to integers via Math.floor. If the result is NaN, they are ignored.
-	/*
-	Battle.prototype.random = function (m, n) {
-		this.seed = (this.seed * 0x41C64E6D + 0x6073) >>> 0; // truncate the result to the last 32 bits
-		var result = this.seed >>> 16; // the first 16 bits of the seed are the random value
-		m = Math.floor(m);
-		n = Math.floor(n);
-		return (m ? (n ? (result % (n - m)) + m : result % m) : result / 0x10000);
-	};
-	*/
 
 	// This function is designed to emulate the on-cartridge PRNG for Gen 5 and uses a 64-bit initial seed
 
@@ -1748,7 +1707,6 @@ var Battle = (function () {
 	Battle.prototype.getResidualStatuses = function (thing, callbackType) {
 		var statuses = this.getRelevantEffectsInner(thing || this, callbackType || 'residualCallback', null, null, false, true, 'duration');
 		statuses.sort(Battle.comparePriority);
-		//if (statuses[0]) this.debug('match ' + (callbackType || 'residualCallback') + ': ' + statuses[0].status.id);
 		return statuses;
 	};
 	Battle.prototype.eachEvent = function (eventid, effect, relayVar) {
@@ -1801,7 +1759,6 @@ var Battle = (function () {
 			throw new Error("Stack overflow");
 			return false;
 		}
-		//this.add('Event: ' + eventid + ' (depth ' + this.eventDepth + ')');
 		effect = this.getEffect(effect);
 		var hasRelayVar = true;
 		if (relayVar === undefined) {
@@ -1964,7 +1921,6 @@ var Battle = (function () {
 		var hasRelayVar = true;
 		effect = this.getEffect(effect);
 		var args = [target, source, effect];
-		//console.log('Event: ' + eventid + ' (depth ' + this.eventDepth + ') t:' + target.id + ' s:' + (!source || source.id) + ' e:' + effect.id);
 		if (relayVar === undefined || relayVar === null) {
 			relayVar = true;
 			hasRelayVar = false;
@@ -1982,7 +1938,6 @@ var Battle = (function () {
 		for (var i = 0; i < statuses.length; i++) {
 			var status = statuses[i].status;
 			var thing = statuses[i].thing;
-			//this.debug('match ' + eventid + ': ' + status.id + ' ' + status.effectType);
 			if (status.effectType === 'Status' && thing.status !== status.id) {
 				// it's changed; call it off
 				continue;
@@ -2056,7 +2011,6 @@ var Battle = (function () {
 
 		this.eventDepth--;
 		if (this.event.modifier !== 1 && typeof relayVar === 'number') {
-			// this.debug(eventid + ' modifier: 0x' + ('0000' + (this.event.modifier * 4096).toString(16)).slice(-4).toUpperCase());
 			relayVar = this.modify(relayVar, this.event.modifier);
 		}
 		this.event = parentEvent;
@@ -2086,7 +2040,6 @@ var Battle = (function () {
 	Battle.prototype.getRelevantEffects = function (thing, callbackType, foeCallbackType, foeThing, checkChildren) {
 		var statuses = this.getRelevantEffectsInner(thing, callbackType, foeCallbackType, foeThing, true, false);
 		statuses.sort(Battle.comparePriority);
-		//if (statuses[0]) this.debug('match ' + callbackType + ': ' + statuses[0].status.id);
 		return statuses;
 	};
 	Battle.prototype.getRelevantEffectsInner = function (thing, callbackType, foeCallbackType, foeThing, bubbleUp, bubbleDown, getAll) {
@@ -2908,9 +2861,6 @@ var Battle = (function () {
 
 		// randomizer
 		// this is not a modifier
-		// gen 1-2
-		//var randFactor = Math.floor(Math.random() * 39) + 217;
-		//baseDamage *= Math.floor(randFactor * 100 / 255) / 100;
 		baseDamage = Math.floor(baseDamage * (100 - this.random(16)) / 100);
 
 		// STAB
@@ -3319,7 +3269,6 @@ var Battle = (function () {
 				break;
 			}
 			this.switchIn(decision.target, decision.pokemon.position);
-			//decision.target.runSwitchIn();
 			break;
 		case 'runSwitch':
 			decision.pokemon.isStarted = true;
@@ -3402,20 +3351,11 @@ var Battle = (function () {
 		while (this.queue.length) {
 			var decision = this.queue.shift();
 
-			/* while (decision.priority < currentPriority && currentPriority > -6) {
-				this.eachEvent('Priority', null, currentPriority);
-				currentPriority--;
-			} */
-
 			this.runDecision(decision);
 
 			if (this.currentRequest) {
 				return;
 			}
-
-			// if (!this.queue.length || this.queue[0].choice === 'runSwitch') {
-			// 	if (this.faintMessages()) return;
-			// }
 
 			if (this.ended) return;
 		}
@@ -3575,7 +3515,6 @@ var Battle = (function () {
 				if (i > side.active.length || i > side.pokemon.length) continue;
 				if (side.currentRequest === 'move') {
 					if (side.pokemon[i].trapped) {
-						//this.debug("Can't switch: The active pokemon is trapped");
 						side.emitCallback('trapped', i);
 						return false;
 					} else if (side.pokemon[i].maybeTrapped) {
@@ -3726,7 +3665,6 @@ var Battle = (function () {
 			if (this.started) {
 				this.p2.name = name;
 			} else {
-				//console.log("NEW SIDE: " + name);
 				this.p2 = new BattleSide(name, this, 1, team);
 				this.sides[1] = this.p2;
 			}
@@ -3737,7 +3675,6 @@ var Battle = (function () {
 			if (this.started) {
 				this.p1.name = name;
 			} else {
-				//console.log("NEW SIDE: " + name);
 				this.p1 = new BattleSide(name, this, 0, team);
 				this.sides[0] = this.p1;
 			}

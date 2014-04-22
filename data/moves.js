@@ -7680,13 +7680,6 @@ exports.BattleMovedex = {
 		},
 		effect: {
 			duration: 5,
-			/*durationCallback: function (source, effect) {
-				// Persistent isn't updated for BW moves
-				if (source && source.hasAbility('Persistent')) {
-					return 7;
-				}
-				return 5;
-			},*/
 			onStart: function (target, source) {
 				this.add('-fieldstart', 'move: Magic Room', '[of] ' + source);
 			},

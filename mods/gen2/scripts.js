@@ -221,7 +221,6 @@ exports.BattleScripts = {
 	getResidualStatuses: function (thing, callbackType) {
 		var statuses = this.getRelevantEffectsInner(thing || this, callbackType || 'residualCallback', null, null, false, true, 'duration');
 		statuses.sort(this.comparePriority);
-		//if (statuses[0]) this.debug('match ' + (callbackType || 'residualCallback') + ': ' + statuses[0].status.id);
 		return statuses;
 	},
 	residualEvent: function (eventid, relayVar) {
@@ -244,7 +243,6 @@ exports.BattleScripts = {
 	getRelevantEffects: function (thing, callbackType, foeCallbackType, foeThing, checkChildren) {
 		var statuses = this.getRelevantEffectsInner(thing, callbackType, foeCallbackType, foeThing, true, false);
 		statuses.sort(this.comparePriority);
-		//if (statuses[0]) this.debug('match ' + callbackType + ': ' + statuses[0].status.id);
 		return statuses;
 	},
 	addQueue: function (decision, noSort, side) {
