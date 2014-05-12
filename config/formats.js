@@ -247,6 +247,43 @@ exports.Formats = [
 		ruleset: ['Team Preview']
 	},
 
+	// XY Triples
+	///////////////////////////////////////////////////////////////////
+
+
+	{
+		name: "Random Triples Battle",
+		section: "XY Triples",
+
+		gameType: 'triples',
+		team: 'randomDoubles',
+		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod']
+	},
+	{
+		name: "Smogon Triples",
+		section: "XY Triples",
+
+		gameType: 'triples',
+		searchShow: false,
+		ruleset: ['Pokemon', 'Standard Doubles', 'Team Preview'],
+		banlist: ['Soul Dew', 'Dark Void',
+			'Mewtwo', 'Lugia', 'Ho-Oh', 'Kyogre', 'Groudon', 'Rayquaza', 'Dialga', 'Palkia', 'Giratina', 'Giratina-Origin',
+			'Arceus', 'Reshiram', 'Zekrom', 'Kyurem-White', 'Xerneas', 'Yveltal'
+		]
+	},
+	{
+		name: "Triples Custom Game",
+		section: "XY Triples",
+
+		gameType: 'triples',
+		searchShow: false,
+		canUseRandomTeam: true,
+		maxLevel: 9999,
+		defaultLevel: 100,
+		debug: true,
+		ruleset: ['Team Preview']
+	},
+
 	// Other Metagames
 	///////////////////////////////////////////////////////////////////
 
