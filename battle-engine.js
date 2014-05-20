@@ -66,6 +66,8 @@ global.string = function (str) {
 
 global.Tools = require('./tools.js');
 
+require('./repl.js').start('battle-engine-', process.pid, function (cmd) { return eval(cmd); });
+
 var Battles = {};
 
 // Receive and process a message sent using Simulator.prototype.send in

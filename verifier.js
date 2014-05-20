@@ -60,4 +60,5 @@ if (!process.send) {
 		});
 	});
 
+	require('./repl.js').start('verifier', function (cmd) { return eval(cmd); });
 }

@@ -151,6 +151,8 @@ if (!process.send) {
 
 	global.Tools = require('./tools.js');
 
+	require('./repl.js').start('team-validator-', process.pid, function (cmd) { return eval(cmd); });
+
 	var validators = {};
 
 	function respond(id, success, details) {
@@ -413,7 +415,7 @@ var Validator = (function () {
 					clause = typeof banlistTable[check] === 'string' ? " by "+ banlistTable[check] : '';
 					problems.push(name + "'s move " + set.moves[i] + " is banned" + clause + ".");
 				}
-				
+
 				if (banlistTable['Unreleased']) {
 					if (move.isUnreleased) problems.push(name + "'s move " + set.moves[i] + " is unreleased.");
 				}
