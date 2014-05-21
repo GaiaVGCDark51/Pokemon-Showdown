@@ -5,6 +5,8 @@ var Config = require('./config/config.js');
 var clearedPrefixes = {};
 // The eval function is passed in because there is no other way to access a file's non-global context
 exports.start = function (prefix, suffix, evalFunction) {
+	if (process.platform === 'win32') return; // Windows doesn't support sockets mounted in the filesystem
+
 	prefix = Config.replsocketprefix + prefix;
 	if (!evalFunction) {
 		evalFunction = suffix;
